@@ -18,8 +18,9 @@ The creative workflow has **no relevance filter**, only an authorization filter.
 3. A Main Super-Agent drives the Recon ⇄ Attack loop: launches recon, decides which
    attacks to test, decides whether to continue / stop / pivot the scope based on the conclusions.
 4. Each negative conclusion from the Attack Master passes through a **Persistence Controller** before
-   propagating up: if it detects a sign of dubious execution, it sends the test back to the pool concerned,
-   up to 3 cumulative attempts, before accepting a "no vulnerability" as definitive.
+   propagating up: if it detects a sign of dubious execution, it sends the test back with a genuinely
+   NEW angle — retrying as many times as needed until the angle space is exhausted (or the budget
+   floor is hit), before accepting a "no vulnerability" as definitive. No small fixed count.
 5. In parallel, a **Pool of Crazy Agents** generates deliberately extreme attack hypotheses,
    **with no memory of the work already done**. These hypotheses traverse their own Crazy Recon
    Workflow then Crazy Attack (same structure), with no relevance filter — only the authorization filter.
@@ -50,8 +51,8 @@ the pools of a phase into a "large conclusion". Model: strong.
 
 **Persistence Controller** — intercepts each negative conclusion from an Attack Master. Checks
 whether there is a signal of uncertainty (poorly executed test, misinterpreted payload, ambiguous response). If so,
-sends it back to the pool for a new attempt — up to 3 cumulative attempts — before accepting the
-negative as definitive. Model: strong.
+sends it back with a genuinely new angle — retrying as many times as needed until the angle space is
+exhausted (or the budget floor is hit) — before accepting the negative as definitive. Model: strong.
 
 **Main Super-Agent** — drives the main Recon ⇄ Attack loop, decides
 continue/stop/pivot the scope, receives the correlations redistributed by the Global Super-Agent.
@@ -72,8 +73,9 @@ the raw creative conclusion, decides whether there is a relevant correlation and
   authorized, without judging the perceived probability of success.
 - **Creative ≠ relevant.** The creative workflow has no relevance filter, only an authorization
   filter. Its purpose is to test everything.
-- **No premature abandonment.** The Persistence Controller forces 3 attempts before any definitive
-  negative, on both the main and creative sides.
+- **No premature abandonment.** The Persistence Controller retries with a new angle as many times as
+  needed — until genuinely exhausted or the budget floor — before any definitive negative, on both
+  the main and creative sides.
 - **Strict separation of responsibilities.** The Main Super-Agent does not do the correlation
   itself — that is the role of the Global Super-Agent.
 

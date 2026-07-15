@@ -59,9 +59,14 @@ Models are expressed in **tiers** (`cheap`/`mid`/`strong`), not in proper names.
 
 ## Budget & mode (Crazy Pool + retry)
 
-The Crazy Pool and the retry depth consume the same budget → a single button, `rules.yaml.budget.mode`:
-`peu` / `normal` (default, depends on the budget) / `beaucoup` (≈ ×2). Set via the
-`pentest-intake` questionnaire before each campaign.
+The Crazy Pool size is set by `rules.yaml.budget.mode`: `peu` / `normal` (default) / `beaucoup` (≈ ×2),
+via the `pentest-intake` questionnaire.
+
+**Retry is deep, not capped.** For bug bounty the retry is **unbounded** in `normal`/`beaucoup`: the
+persistence-controller keeps reinjecting a genuinely NEW angle (think-differently) until it is
+genuinely **exhausted** (no new approach left), or the budget floor / anti-runaway backstop is hit —
+never a small fixed count. The breakthroughs come from deep retry + think-differently + crazy ideas,
+so we do not stop early. `peu` keeps a small finite cap for token-conscious runs.
 
 ## Conventions
 

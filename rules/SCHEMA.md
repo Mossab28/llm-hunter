@@ -122,9 +122,12 @@ runtime:
                             # false → a single model everywhere, effort modulated per tier
                             #          (cheap=low, mid=medium, strong=high)
   # Derived values computed by the workflows (see the `foPlan` helper in crazy/attack-pipeline):
-  #   peu      → poolSize = max(1, floor(base_fou/2)),  max_retry = 2
-  #   normal   → poolSize = base_fou,                    max_retry = 3
-  #   beaucoup → poolSize = 2 * base_fou,                max_retry = 3
+  #   peu      → poolSize = max(1, floor(base_fou/2)),  max_retry = 3        (token-conscious)
+  #   normal   → poolSize = base_fou,                    max_retry = UNBOUNDED
+  #   beaucoup → poolSize = 2 * base_fou,                max_retry = UNBOUNDED
+  # UNBOUNDED retry = keep reinjecting a genuinely NEW angle until the persistence-controller is
+  # exhausted (no new approach) or the budget floor / anti-runaway backstop is hit — never a fixed
+  # count. Deep retry + think-differently + crazy ideas is where the breakthroughs come from.
 ```
 
 ## Interpretation rules for the agents

@@ -17,15 +17,18 @@ const A = typeof args === 'string' ? (() => { try { return JSON.parse(args) } ca
 const rules = A.rules ?? '(rules.yaml missing)'
 const rawSurface = A.rawSurface ?? '(raw surface missing)'
 
-// --- Budget: the mode drives the crazy pool size AND the retry depth ------------------------
+// --- Budget: the mode drives the crazy pool size; retry is DEEP (unbounded) except in 'peu' -----
+// The breakthroughs come from deep think-differently retry + crazy ideas, so we don't cap on a count.
 function foPlan(mode, base) {
-  if (mode === 'peu') return { poolSize: Math.max(1, Math.floor(base / 2)), maxRetry: 2 }
-  if (mode === 'beaucoup') return { poolSize: 2 * base, maxRetry: 3 }
-  return { poolSize: base, maxRetry: 3 } // normal (default)
+  if (mode === 'peu') return { poolSize: Math.max(1, Math.floor(base / 2)), maxRetry: 3 }
+  if (mode === 'beaucoup') return { poolSize: 2 * base, maxRetry: Infinity }
+  return { poolSize: base, maxRetry: Infinity } // normal (default): unbounded, bounded by exhaustion+budget
 }
 const mode = A.mode ?? 'normal'
 const baseFou = A.baseFou ?? 3
 let { poolSize, maxRetry } = foPlan(mode, baseFou)
+const HARD_CAP = 50            // anti-runaway backstop only
+const BUDGET_FLOOR = 40_000    // stop retrying if exploratory tokens run low
 if (budget?.total && budget.remaining() < 50_000) poolSize = Math.max(1, Math.floor(poolSize / 2))
 
 function chunk5(arr) { const o = []; for (let i = 0; i < arr.length; i += 5) o.push(arr.slice(i, i + 5)); return o }
@@ -86,30 +89,37 @@ const crazyRecon = await fullWorkforce('recon', reconTools, 'master-recon')
 // --- phase 3: crazy Attack (full workforce) + phase 4: think-differently persistence loop ----
 let activeTools = attackTools
 let differentApproach = ''   // reinjected each retry: "think differently"
+const seenAngles = new Set()
 const definitive = []
 let attempt = 0
-while (attempt < maxRetry && activeTools.length) {
+while (attempt < maxRetry && attempt < HARD_CAP && activeTools.length) {
   attempt++
   const master = await fullWorkforce('attack', activeTools, 'master-attack',
     differentApproach ? `THINK DIFFERENTLY — take this genuinely different angle, do NOT repeat the ` +
       `previous attempt: ${differentApproach}` : '')
 
   phase('Persistence')
+  const capLabel = Number.isFinite(maxRetry) ? `/${maxRetry}` : ' (unbounded — retry until exhausted)'
   const verdict = await agent(
-    `You are the persistence-controller (creative, attempt ${attempt}/${maxRetry}). For each suspect ` +
+    `You are the persistence-controller (creative, attempt ${attempt}${capLabel}). For each suspect ` +
     `negative, do NOT re-run the same test: produce a genuinely DIFFERENT approach/angle to reinject ` +
-    `(think differently). Reliable negatives pass through. Never exceed rules.yaml.\n` +
+    `(think differently). Keep proposing NEW angles for as long as you have any — do NOT stop on a ` +
+    `count. Set exhausted:true ONLY when no new approach is left. Reliable negatives pass through. ` +
+    `Never exceed rules.yaml.\n` +
     `--- CRAZY RECON ---\n${JSON.stringify(crazyRecon)}\n--- MASTER ---\n${JSON.stringify(master)}\n--- RULES ---\n${rules}`,
     { label: `crazy-persistence:t${attempt}`, phase: 'Persistence', agentType: 'persistence-controller' }
   )
   definitive.push(...(verdict?.passthrough ?? []))
   const retry = verdict?.retry ?? []
-  if (!retry.length) break
-  // Re-run the SAME attack tools (leads are not tool ids). Keep activeTools = attackTools and only
-  // change the ANGLE via differentApproach, reinjected into the next round. Stop when no retry.
+  if (verdict?.exhausted || !retry.length) { log(`Crazy exhausted after ${attempt} attempt(s).`); break }
+  const nextAngle = retry.map((r) => r.adjustment).filter(Boolean).join(' | ')
+  if (!nextAngle || seenAngles.has(nextAngle)) { log(`No new crazy angle at attempt ${attempt} — exhausted.`); break }
+  seenAngles.add(nextAngle)
+  if (budget?.total && budget.remaining() < BUDGET_FLOOR) { log(`Budget floor reached at crazy attempt ${attempt} — stopping.`); break }
+  // Re-run the SAME attack tools (leads are not tool ids). Only the ANGLE changes.
   activeTools = attackTools
-  differentApproach = retry.map((r) => r.adjustment).filter(Boolean).join(' | ')
-  log(`Crazy attempt ${attempt}: ${retry.length} lead(s) reinjected — same tools re-run with a different approach.`)
+  differentApproach = nextAngle
+  log(`Crazy attempt ${attempt}: reinjected a NEW different angle — retrying (deep retry, as needed).`)
 }
 
 // The raw creative conclusion THEN goes, without a relevance filter, to the super-agent-global.

@@ -61,8 +61,9 @@ authorized to test.**
 tools are deployed). Orchestrators = **ceil(N/5)** (one per pool of 5). Masters aggregate into a
 single conclusion.
 
-**Anti-give-up.** A *persistence-controller* intercepts every negative verdict and forces up to 3
-retries before a "no vulnerability" is accepted as final.
+**Anti-give-up.** A *persistence-controller* intercepts every negative verdict and retries with a
+genuinely new angle as many times as needed — until it is exhausted (no new approach) or the budget
+floor is hit — before a "no vulnerability" is accepted as final.
 
 **Creative pool ("crazy agents").** A firewalled set of agents receives *only the raw attack
 surface* — never prior conclusions or "already tried" verdicts — so their creativity is never
@@ -72,8 +73,10 @@ poisoned by defeatism. A *global* super-agent correlates their raw output back i
 reformats them into clean, reusable skills. Only the skill/config layer is mutable — the base runs
 (workflows, agent roles) are immutable.
 
-**Budget modes.** `peu` / `normal` / `beaucoup` scale the creative pool size *and* retry depth
-together, since both draw on the same token budget.
+**Budget modes.** `peu` / `normal` / `beaucoup` scale the creative pool size. Retry is **deep, not
+capped**: in `normal`/`beaucoup` the persistence-controller retries with a genuinely new angle until
+it is exhausted (no new approach) or the budget floor is hit — never a small fixed count, because the
+breakthroughs come from deep retry + think-differently + crazy ideas. `peu` keeps a finite cap.
 
 ## LLM-agnostic by design
 

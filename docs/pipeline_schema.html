@@ -177,8 +177,8 @@
         <div class="flow">↓ chunk by 5 · small conclusions</div>
         <div class="node master">master-attack</div>
         <div class="flow">↓ mandatory check</div>
-        <div class="node ctrl">🛡️ persistence-controller <span class="s">up to 3 retries before a final negative</span></div>
-        <div class="retry">↺ suspect negative → sent back to the pool<br>(2 or 3 attempts, per budget mode)</div>
+        <div class="node ctrl">🛡️ persistence-controller <span class="s">retry with a new angle until exhausted / budget</span></div>
+        <div class="retry">↺ suspect negative → sent back with a NEW angle<br>(retry as many times as needed — deep retry)</div>
       </div>
     </div>
 
@@ -190,7 +190,7 @@
         <div class="flow">↓</div>
         <div class="foustep">Crazy recon → Crazy attack <span class="tag">(same structure, no self-censorship)</span></div>
         <div class="flow">↓</div>
-        <div class="foustep">crazy master-attack → 🛡️ persistence <span class="tag">(3 retries)</span></div>
+        <div class="foustep">crazy master-attack → 🛡️ persistence <span class="tag">(retry until exhausted)</span></div>
         <div class="flow">↓ raw conclusion, no relevance filter</div>
       </div>
 
