@@ -39,6 +39,12 @@ defensive research). Each campaign operates within an explicit scope.
    **nobody, skill-writer included, touches the base runs**: `.claude/workflows/`,
    `.claude/agents/`, `rules/` remain immutable. Knowledge/config grows, the orchestration
    stays stable.
+5. **Learn constructively — never blacklist.** Learning is POSITIVE: capture what *worked* (a novel
+   approach → a skill to redo) and, from a failure, the *alternative approaches to try next time*.
+   Never encode "this failed N times, stop trying". A past failure only **adds** angles to try; it
+   never suppresses a future attempt. No learned skill may say "don't try X" — the learned bank is an
+   additive playbook of approaches, not a dead-end list. (This mirrors the persistence-controller:
+   its final negatives are per-run only, never persisted as a do-not-retry rule.)
 
 ## Multi-LLM portability (Claude, GPT, single-model) — cf `docs/MODEL_STRATEGY.md`
 
@@ -62,8 +68,9 @@ The Crazy Pool and the retry depth consume the same budget → a single button, 
 - **Agents**: `.claude/agents/*.md`, one role per file, model in frontmatter (cost cascade).
 - **Workflows**: `.claude/workflows/*.js`, deterministic orchestration scripts (Workflow tool).
 - **Skills**: `.claude/skills/*/SKILL.md`, reusable methodology.
-- **Squad formula**: tool-agents = N (1 per useful tool); orchestrators = ceil(N/5).
-- The default working language is French (docs, conclusions).
+- **Squad formula**: tool-agents = N (1 per authorized tool, inclusive); orchestrators = ceil(N/5).
+  The crazy pipeline uses the SAME full workforce as the main recon/attack pipeline.
+- The working language of the repo is English (docs, conclusions).
 
 ## What this repo is NOT
 

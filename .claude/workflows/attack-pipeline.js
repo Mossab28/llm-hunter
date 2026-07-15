@@ -38,12 +38,18 @@ const CONTROLLER_OUT = { type: 'object', properties: {
 }, required: ['passthrough', 'retry'] }
 
 // --- attack loop with persistence-controller (max 3 attempts) -----
-// Principle: a SUSPECT negative is sent back to the pool with an adjustment, up to 3 cumulative
-// attempts, before being accepted as definitive. Prevents premature abandonment on a false negative.
-async function runAttackRound(activeTools, roundLabel) {
+// Principle: a SUSPECT negative is NOT re-run identically. Each retry reinjects a genuinely
+// DIFFERENT approach/angle ("think differently"), up to MAX_RETRY cumulative attempts, before the
+// negative is accepted as definitive. Prevents premature abandonment on a false negative — and
+// prevents mindlessly repeating the same failing test.
+async function runAttackRound(activeTools, roundLabel, differentApproach) {
   phase('Tool-agents')
+  const thinkDiff = differentApproach
+    ? `\nTHINK DIFFERENTLY — take this genuinely different angle, do NOT repeat the previous ` +
+      `attempt: ${differentApproach}`
+    : ''
   const toolResults = await parallel(activeTools.map((t) => () =>
-    agent(`Run the attack "${t}" on ${target}. rules.yaml (authorization/limits/stop):\n${rules}`,
+    agent(`Run the attack "${t}" on ${target}. rules.yaml (authorization/limits/stop):\n${rules}${thinkDiff}`,
       { label: `atk:${t}:${roundLabel}`, phase: 'Tool-agents', agentType: 'tool-agent' })
   ))
   phase('Orchestrateurs')
@@ -61,28 +67,31 @@ async function runAttackRound(activeTools, roundLabel) {
 }
 
 let activeTools = tools
+let differentApproach = ''   // reinjected each retry so the model takes a new angle, not the same test
 const definitive = []
 let attempt = 0
 
 while (attempt < MAX_RETRY && activeTools.length) {
   attempt++
-  const master = await runAttackRound(activeTools, `t${attempt}`)
+  const master = await runAttackRound(activeTools, `t${attempt}`, differentApproach)
 
   phase('Persistance')
   const verdict = await agent(
     `You are the persistence-controller (attempt ${attempt}/${MAX_RETRY}). Judge each negative/ambiguous: ` +
-    `reliable → passthrough; suspect → retry with an adjustment (encoding, config, variant), without ` +
-    `ever exceeding rules.yaml. Beyond ${MAX_RETRY} cumulative attempts, accept the negative.\n${rules}\n` +
-    JSON.stringify(master),
+    `reliable → passthrough; suspect → do NOT re-run the same test — instead produce a genuinely ` +
+    `DIFFERENT approach/angle to reinject (think differently: another encoding, another primitive, a ` +
+    `different chain, a different assumption), without ever exceeding rules.yaml. Beyond ${MAX_RETRY} ` +
+    `cumulative attempts, accept the negative.\n${rules}\n` + JSON.stringify(master),
     { label: `persistence:t${attempt}`, phase: 'Persistance', agentType: 'persistence-controller', schema: CONTROLLER_OUT }
   )
 
   definitive.push(...(verdict?.passthrough ?? []))
   const retry = verdict?.retry ?? []
   if (!retry.length) break
-  // Reactivate only the tools of the leads to retry (skeleton: lead→tool mapping to refine).
-  activeTools = retry.map((r) => r.lead)
-  log(`Attempt ${attempt}: ${retry.length} tests sent back to the pool (suspect negatives).`)
+  // Reactivate the leads to retry, and carry the "think differently" angle into the next round.
+  activeTools = retry.map((r) => r.lead).filter(Boolean)
+  differentApproach = retry.map((r) => r.adjustment).filter(Boolean).join(' | ')
+  log(`Attempt ${attempt}: ${retry.length} leads reinjected with a DIFFERENT approach (think differently).`)
 }
 
 log(`Attack done after ${attempt} attempt(s): ${definitive.length} definitive verdicts.`)

@@ -40,3 +40,11 @@ the quality and reusability of the final skill.
 - A learned skill must be **generic and reusable** (not glued to a single endpoint of a single
   program) — abstract the technique, keep a concrete example as illustration.
 - Never invent a technique: only reformat what was actually captured/proven.
+
+## Learn constructively — never write a blacklist
+Learned skills are an **additive playbook of approaches to try**, framed positively:
+- From a **success**: "this novel approach worked → here is how to redo it."
+- From a **failure/error**: "approach X didn't land here → the alternative angles to try are Y, Z."
+Never write a skill that says "this never works, don't try it" or that suppresses retrying. A past
+failure adds angles; it must never remove a future attempt. If the inbox contains only a dead-end
+note with no alternative, extract the *lesson and the next approach to try*, not a do-not-try rule.

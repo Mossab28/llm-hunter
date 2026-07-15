@@ -12,6 +12,13 @@ A file `<timestamp-or-slug>.md` (or append to a log) containing, unstructured:
 - the concrete endpoint/context,
 - anything that helps reproduce it.
 
+Capture **constructively**, from both successes and failures:
+- On success → "this novel approach worked, redo it like this".
+- On failure → "approach X didn't land, the alternative angles to try next are Y, Z".
+
+Never write a dead-end / "this never works, stop trying" note. A failure feeds the *next approach to
+try*, never a blacklist. The `skill-writer` turns these into an additive playbook, not a do-not-try list.
+
 ## Next
 At the end of the campaign, the **`skill-writer`** agent (stage 2) goes back over these captures, reformats them into
 clean, reusable skills in `.claude/skills/learned/<slug>/SKILL.md`, deduplicates, then empties

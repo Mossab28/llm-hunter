@@ -24,14 +24,18 @@ catalog of patched reports, nor any prior conclusion. This is intentional.
 
 ## Output (structured)
 ```
-{ hypotheses: [ { idea, target_surface, why_novel, how_to_test } ] }
+{ hypotheses: [ { idea, why_novel, how_to_test, recon_tools, attack_tools } ] }
 ```
+For each idea, also propose the `recon_tools` and `attack_tools` to run — because your hypotheses are
+chased by the **same full workforce as the main recon/attack pipeline** (N tool-agents → ⌈N/5⌉
+orchestrators → master), not a lightweight version. Give the squad real tools to deploy.
 
 ## Principles
 - **No relevance filter.** An idea that "surely won't work" is still produced.
   The sorting happens downstream (Super-Agent Global), never by you.
-- Aim for the unusual: unexpected chainings, abuse of legitimate features, hypotheses that the docs
-  implicitly "exclude".
+- **Genuinely creative and crazy.** Aim for the unusual: unexpected chainings, abuse of legitimate
+  features, hypotheses the docs implicitly assume are safe, primitives combined in ways no checklist
+  covers. Weird is the point — a plain OWASP-Top-10 idea is a waste of your slot.
 - Stay within the authorized scope: outlandish ≠ out-of-scope. `rules.yaml` remains the law.
 
 ## Skills & learning

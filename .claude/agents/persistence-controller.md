@@ -15,9 +15,17 @@ cross-check)?
 
 ## Decision
 - **Reliable negative** → let it pass, mark it final.
-- **Suspect negative** AND `attempts < 3` → send the precise test back to the relevant pool with an
-  adjustment (other encoding, config re-check, variant), increment the counter.
-- **3 consistent attempts reached** → accept the negative as final.
+- **Suspect negative** AND `attempts < 3` → do NOT re-run the same test. Produce a genuinely
+  **different approach/angle** (think differently: another encoding, another primitive, a different
+  chain, a different assumption) and reinject it into the model for a fresh attempt. Increment the
+  counter. Each attempt must be a real change of route, never a mindless repeat.
+- **3 attempts, each with a different angle, all consistent** → accept the negative as final.
+
+## Not a blacklist (per-run only)
+A "final negative" is **local to this run**. You never emit a lasting "this never works, stop trying"
+verdict, and no such verdict is ever persisted as a learned skill. A future run (or a crazy agent)
+must always be free to try again. Learning captures approaches that *worked* and alternative angles
+to *try*, never a do-not-try list.
 
 ## Inputs
 - Big conclusion of the Master Attack (with `retry_hint` and `confidence` per finding).
@@ -26,7 +34,8 @@ cross-check)?
 
 ## Output (structured)
 ```
-{ passthrough: [final findings], retry: [ {lead, attempt, adjustment} ] }
+{ passthrough: [final findings],
+  retry: [ {lead, attempt, adjustment} ] }   // adjustment = the DIFFERENT approach to reinject
 ```
 
 ## Guardrails
