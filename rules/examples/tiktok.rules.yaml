@@ -1,0 +1,108 @@
+# Example generated from the "pentestik tok" folder (Obsidian vault).
+# Shows what a real rules.yaml produced by the scope-analyst looks like.
+# NB: reflects the TikTok rules — notably the FORBIDDEN aggressive tools and the single-digit volume.
+
+authorization:
+  engagement_type: "bug_bounty"
+  proof: "https://hackerone.com/tiktok (public program) — scope confirmed at intake"
+  verified: true
+
+program:
+  name: "TikTok Bug Bounty"
+  platform: "HackerOne"
+  url: "https://hackerone.com/tiktok"
+  signal_requirement: true      # Signal < 1.0 → submissions blocked. Quality > quantity.
+  novelty_required: true        # all referenced reports are patched → fresh variant mandatory
+
+scope:
+  in:
+    - "tiktok.com"
+    - "*.tiktokv.com"
+    - "com.zhiliaoapp.musically"      # Android
+    - "com.ss.android.ugc.trill"      # Android
+    - "iOS app 835599320"
+    - "iOS app 1235601864"
+  out:
+    - "Partner Shop / Seller API (IDOR/access-control excluded since 2024-03-13)"
+    - "TikTok One / Business Center (excluded 2024-12-16)"
+    - "CSRF (program-wide, excluded since 2023-07-05)"
+    - "FBT platform (frozen 2026-05-13)"
+    - "Minis devportal (frozen 2026-02-23)"
+    - "XSS on CDN with no impact on an in-scope domain"
+  internal_forbidden: true
+
+tools:
+  allowed:
+    - id: burp                        # interception proxy
+    - id: mitmproxy
+    - id: browser-mcp                 # browser driven behind Burp
+    - id: frida                       # app re-signing (own device)
+    - id: objection
+    - id: jwt_tool                    # on your own tokens only
+    - id: crt_sh                      # passive recon CT logs
+  forbidden:
+    - id: sqlmap
+      reason: "active scanner / automated injection — forbidden"
+    - id: ffuf
+      reason: "mass fuzzing/enumeration forbidden"
+    - id: gobuster
+      reason: "aggressive enumeration forbidden"
+    - id: nuclei
+      reason: "mass active scanner — forbidden"
+    - id: nmap
+      reason: "active scan — forbidden on internal hosts, rate-limited elsewhere"
+
+limits:
+  volume_per_test: "single-digit"
+  rate_limited: true
+  no_aggressive_enum: true
+
+vuln_focus:
+  - broken-access-control
+  - idor-bola
+  - ssrf
+  - account-takeover
+  exclude_classes:
+    - csrf
+
+stop_conditions:
+  - third_party_real_data
+  - internal_resource
+  - out_of_scope_host
+
+testing_accounts:
+  self_owned_only: true
+  convention: "<username>+x@wearehackerone.com"
+  notes: "IDOR → 2 accounts (A attacker, B victim). Family Pairing → 3 accounts (A parent, B teen, C non-paired)."
+
+reporting:
+  provide_test_ip: true
+  poc_naming: "H1 handle in file name + comment"
+  quality: "summary + repro + PoC + impact + root cause + fix"
+
+special_rules:
+  - id: ssrf_sheriff
+    desc: "SSRF only via SSRF Sheriff. Full-read: ssrf-bait.byted.org/full-read-ssrf. Flag = lowercase hex 32 chars."
+  - id: signature_bodies
+    desc: "X-Argus/X-Gorgon (app), X-Bogus/X-Gnarly (web) cover the body → modifying a param invalidates the signature. Test via a real signed client, not raw curl. Exception: Content Posting API in pure OAuth Bearer = testable with curl/Postman."
+
+skills:
+  bank: ".claude/skills/"
+  learned: ".claude/skills/learned/"
+  read_before_execute: true
+
+learning:
+  enabled: true
+  capture_inbox: ".claude/skills/learned/_inbox/"
+  notify: true
+  agent_writable_paths: [".claude/skills/learned/_inbox/"]
+  skillwriter_writable_paths: [".claude/skills/", "TOOLS_CATALOG.md"]
+  immutable_paths: [".claude/workflows/", ".claude/agents/", "rules/"]
+
+# NB TikTok: internal_forbidden: true (the program forbids internal). On a pentest that
+# allows internal, we would set false and test it fully.
+
+budget:
+  mode: "normal"        # peu | normal | beaucoup
+  base_fou: 3
+  token_target: null
