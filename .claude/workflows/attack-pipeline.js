@@ -88,10 +88,13 @@ while (attempt < MAX_RETRY && activeTools.length) {
   definitive.push(...(verdict?.passthrough ?? []))
   const retry = verdict?.retry ?? []
   if (!retry.length) break
-  // Reactivate the leads to retry, and carry the "think differently" angle into the next round.
-  activeTools = retry.map((r) => r.lead).filter(Boolean)
+  // Re-run the SAME real tools (leads are not tool ids, so mapping them onto activeTools would
+  // wipe the real tool list). We keep `activeTools = tools` unchanged and instead change the ANGLE
+  // via differentApproach, which is reinjected into every tool-agent prompt next round. The loop
+  // stops as soon as the controller returns no retry, or MAX_RETRY is reached.
+  activeTools = tools
   differentApproach = retry.map((r) => r.adjustment).filter(Boolean).join(' | ')
-  log(`Attempt ${attempt}: ${retry.length} leads reinjected with a DIFFERENT approach (think differently).`)
+  log(`Attempt ${attempt}: ${retry.length} lead(s) reinjected — same tools re-run with a DIFFERENT approach (think differently).`)
 }
 
 log(`Attack done after ${attempt} attempt(s): ${definitive.length} definitive verdicts.`)

@@ -41,6 +41,30 @@ then you exclude it AND flag it to the operator so they can decide, you do not c
 3. Determine `novelty_required`: if the known reports are patched → new variant mandatory.
 4. List the `stop_conditions` in a hard and unambiguous way.
 
+## Output — TWO deliverables (both mandatory)
+You do **two** things before returning:
+
+1. **Write `rules.yaml`** (schema: `rules/SCHEMA.md`) — the full law, as described above.
+
+2. **RETURN a structured `allowed_tools` object** in your final message to the orchestrator, so it
+   can fan out **one `tool-agent` per allowed tool**. Shape:
+
+   ```
+   allowed_tools:
+     recon:  [ tool_id, tool_id, ... ]   # every permitted tool of the recon class
+     attack: [ tool_id, tool_id, ... ]   # every permitted tool of the attack class
+   ```
+
+   Rules for this list:
+   - **Inclusive and exhaustive**: list every tool you marked `allowed`, split by class
+     (recon vs attack). Do **not** pre-filter on utility — a permitted-but-useless tool still ships.
+     The orchestrator, not you, decides which to actually run; your job is the full permitted set.
+   - Use the canonical tool ids from `TOOLS_CATALOG.md`.
+   - A tool that is `forbidden` (or under real authorization ambiguity) never appears in either list.
+   - This structured return is the contract the orchestrator relies on to spawn the tool-agent
+     fleet — it is not optional, and it must agree exactly with the `allowed` set written to
+     `rules.yaml`.
+
 ## Guardrails
 - **Never a utility filter.** A permitted but "useless" tool stays `allowed`. It is not your
   role to sort on utility.

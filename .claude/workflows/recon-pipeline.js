@@ -34,6 +34,12 @@ const SMALL_CONCLUSION = { type: 'object', properties: {
   summary: { type: 'string' },
 }, required: ['summary'] }
 
+// --- guard: no tools to deploy → skip the whole pipeline gracefully -----
+if (!Array.isArray(tools) || tools.length === 0) {
+  log('Recon skipped: args.tools is empty — no tool to deploy, returning an empty conclusion.')
+  return { bigConclusion: null, toolCount: 0, poolCount: 0 }
+}
+
 // --- phase 1: 1 tool-agent per tool (Haiku) -----------------------------
 phase('Tool-agents')
 const toolResults = await parallel(tools.map((t) => () =>

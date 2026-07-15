@@ -18,14 +18,33 @@ of the surface given to the crazy agents).
 - `rules.yaml`.
 
 ## Output (big Recon conclusion, structured)
+Return one structured object that **strictly separates** the factual surface from any reading of it:
 ```
-{ surface: { hosts, endpoints, auth_model, id_formats, tech },
-  entry_points: [...], notable: [...], gaps: [...] }
+{
+  // ── FACTUAL ONLY — this exact object feeds the crazy-agent firewall (rawSurface) ──
+  raw_surface: {
+    hosts:      [...],   // discovered hosts / subdomains, no judgement
+    endpoints:  [...],   // observed paths / routes / APIs
+    auth_model: {...},   // observed auth mechanisms (session, JWT, OAuth, keys), factual
+    id_formats: [...],   // observed identifier shapes (uuid, sequential int, hashid, ...)
+    tech:       [...]    // detected technologies / frameworks / servers
+  },
+
+  // ── INTERPRETATION — NEVER passed to the crazy agents ──
+  interpretation: {
+    entry_points: [...], // promising surfaces to attack (a reading, not a fact)
+    notable:      [...], // anomalies / correlations worth the principal's attention
+    gaps:         [...]  // blind spots, coverage holes, follow-up recon needed
+  }
+}
 ```
 
 ## Guardrails
-- Stay factual: the big Recon conclusion describes the surface, it does not yet judge the
+- `raw_surface` MUST contain **only observed facts** — no feasibility judgement, no verdict, no
+  ranking. It is what the main loop extracts as `rawSurface` and hands to the crazy-agent firewall;
+  any interpretation leaking into it would poison the anti-defeatist-bias firewall.
+- All judgement (what looks exploitable, what is notable, what is missing) lives under
+  `interpretation` and feeds the Super-Agent Principal only — never the crazy agents.
+- Stay factual in `raw_surface`: it describes the surface, it does not yet judge the
   feasibility of an attack.
-- Clearly mark what is **raw surface** (reusable by the crazy agents' firewall) vs
-  what is already an interpretation.
 - Strong model (Sonnet, bump to Opus if budget allows): the quality of this map conditions everything downstream.

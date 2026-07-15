@@ -10,23 +10,22 @@ export const meta = {
   ],
 }
 
-// args = { rules, target, mode, baseFou, learning }
-// mode/baseFou/learning normally come from the pentest-intake questionnaire → rules.yaml.
+// args = { rules, target, reconTools, attackTools, mode, baseFou, learning }
+// reconTools/attackTools come from scope-analyst (allowed_tools.recon / allowed_tools.attack),
+// passed through pentest-intake. mode/baseFou/learning come from the pentest-intake questionnaire.
 const rules = args?.rules ?? '(rules.yaml missing)'
 const target = args?.target ?? '(target missing)'
 const mode = args?.mode ?? 'normal'          // peu | normal | beaucoup (default)
 const baseFou = args?.baseFou ?? 3
 const learningOn = args?.learning ?? true
+// Tool selection is driven by the scope-analyst (allowed_tools). Fall back to a tiny safe
+// default only when nothing was passed, so the loop stays runnable but never invents scope.
+const reconTools = args?.reconTools ?? ['crt_sh']
+const attackTools = args?.attackTools ?? []
 
-// Skeleton of the master loop. The fine wiring (tool selection by the main agent, multi-round
-// loop, lead→tool mapping) will be completed in the next runnable iteration.
-
-// 1) MAIN RECON
+// 1) MAIN RECON — tools come straight from the allowed recon set.
 phase('Recon')
-const recon = await workflow('recon-pipeline', {
-  rules, target,
-  tools: ['crt_sh', 'subfinder', 'httpx', 'katana', 'waybackurls', 'gau'], // selection to be decided by the main agent
-})
+const recon = await workflow('recon-pipeline', { rules, target, tools: reconTools })
 
 // 2) The super-agent-principal decides the attacks from the big recon conclusion
 phase('Attaque')
@@ -38,15 +37,16 @@ const attackPlan = await agent(
 )
 
 // 3) MAIN ATTACK (already contains the persistence-controller; retry depth = mode)
-const attack = await workflow('attack-pipeline', {
-  rules, target, mode,
-  tools: ['burp', 'dalfox', 'jwt_tool'], // to be derived from attackPlan
-})
+//    Tools come from the allowed attack set (the principal plan refines which of them to use).
+const attack = await workflow('attack-pipeline', { rules, target, mode, tools: attackTools })
 
-// 4) CREATIVE in parallel — firewall: receives only the RAW SURFACE (not the main verdicts)
+// 4) CREATIVE in parallel — FIREWALL: the crazy agents must NEVER receive any interpretation,
+//    verdict, entry_points or feasibility judgement from the main recon. They see ONLY the
+//    factual raw_surface (hosts, endpoints, auth_model, id_formats, tech) so their creativity
+//    stays free of the main pipeline's defeatist bias.
 //    Crazy pool size derived from the budget mode (peu / normal / beaucoup).
 phase('Créatif')
-const rawSurface = recon?.bigConclusion // NOTE: extract only the "raw surface" part here
+const rawSurface = recon?.bigConclusion?.raw_surface ?? recon?.bigConclusion
 const crazy = await workflow('crazy-pipeline', { rules, rawSurface, mode, baseFou })
 
 // 5) CORRELATION — the super-agent-global crosses the two worlds (never the main agent itself)

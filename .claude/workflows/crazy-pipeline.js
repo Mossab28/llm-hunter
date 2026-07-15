@@ -59,6 +59,11 @@ log(`Budget "${mode}" → ${poolSize} crazy agents. ${hypotheses.length} hypothe
 // --- shared full-workforce stage (identical formula to recon/attack-pipeline) ---------------
 // N tool-agents (1 per tool, inclusive) → ceil(N/5) orchestrators → master.
 async function fullWorkforce(kind, tools, masterType, extra) {
+  // Empty tool list → skip this phase gracefully (crazy agents proposed nothing to run for it).
+  if (!Array.isArray(tools) || tools.length === 0) {
+    log(`Crazy ${kind} skipped: no tool proposed by the crazy agents for this phase.`)
+    return null
+  }
   phase(kind === 'recon' ? 'Crazy Recon' : 'Crazy Attack')
   const toolResults = await parallel(tools.map((t) => () =>
     agent(`Run "${t}" on the crazy angle (creative hypotheses below). Stay within rules.yaml.\n` +
@@ -98,9 +103,11 @@ while (attempt < maxRetry && activeTools.length) {
   definitive.push(...(verdict?.passthrough ?? []))
   const retry = verdict?.retry ?? []
   if (!retry.length) break
-  activeTools = retry.map((r) => r.lead ?? r).filter(Boolean)
+  // Re-run the SAME attack tools (leads are not tool ids). Keep activeTools = attackTools and only
+  // change the ANGLE via differentApproach, reinjected into the next round. Stop when no retry.
+  activeTools = attackTools
   differentApproach = retry.map((r) => r.adjustment).filter(Boolean).join(' | ')
-  log(`Crazy attempt ${attempt}: ${retry.length} tests reinjected with a different approach.`)
+  log(`Crazy attempt ${attempt}: ${retry.length} lead(s) reinjected — same tools re-run with a different approach.`)
 }
 
 // The raw creative conclusion THEN goes, without a relevance filter, to the super-agent-global.

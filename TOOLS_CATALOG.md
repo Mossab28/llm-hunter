@@ -71,6 +71,27 @@ Each tool carries **authorization metadata** so the scope-analyst can filter:
 | `ip-rotator` | requests-ip-rotator | transversal | active-light | medium | IP rotation (AWS API GW), rate-limit bypass |
 | `ghidra` | Ghidra / Gore | transversal | passive | low | reverse engineering (binaries, Go support) |
 
+## How a tool-agent runs a tool
+
+A `tool-agent` does not merely *say* "run the tool" — it **actually executes** it with a
+concrete method, chosen from the tool's nature. In every case it honors the `rules.yaml`
+`constraints` (mode, `max_requests`) and `limits` (volume caps), and it **never fabricates
+results**: if it cannot run, it returns `status: blocked`/`unavailable` with a note.
+
+Method by tool category (`run` hint):
+
+| category | example tools | run method |
+|---|---|---|
+| Installed CLI | `subfinder`, `httpx`, `nuclei`, `naabu`, `katana`, `amass`, `ffuf`, `sqlmap`, `dalfox`, `nmap`, `gau`, `gobuster` | Invoke via **Bash** with the tool's standard command-line. Apply rate/volume flags to respect `constraints.mode`, `constraints.max_requests` and `limits.volume` (e.g. bounded concurrency, capped request count). Capture stdout/stderr as the raw output. |
+| Passive web / OSINT source | `crt_sh`, `waybackurls`, `gau`, `shodan`, `censys`, `dorkagent`, `js-recon` | Query the source through the **available fetch method** (an HTTP request to the source's own API/endpoint, or the source's read-only CLI). Traffic goes to the third-party source only — **never to the target's own hosts**. |
+| Browser / proxy | `burp`, `browser-mcp`, `caido`, `zap`, `mitmproxy` | Drive it through the **available MCP/browser tool** (e.g. the driven-browser MCP, or the proxy's own control interface). Interact as a real signed client behind the proxy. |
+| Not available in this environment | (any of the above when the binary is missing, no network, or the MCP/proxy is offline) | Do **not** simulate. Return `status: blocked`/`unavailable` with a note stating why (binary not installed, network unreachable, MCP not connected, or a `stop_condition` was hit). |
+
+**Pre-flight (every category):** first check the tool is in `tools.allowed`; if absent →
+`status: blocked`, run nothing. Then confirm the run method is actually available (binary on
+PATH, network reachable, MCP connected). Only then execute, within limits, and return the real
+captured output.
+
 ## Extending the catalog
 
 Add a row with the `class` / `aggressiveness` / `volume` / `notes` metadata. Do NOT

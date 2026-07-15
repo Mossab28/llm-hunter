@@ -99,8 +99,21 @@ CLAUDE.md              the operating contract (guardrails & conventions)
 
 ## Status
 
-🚧 **v1 skeleton** — all 10 roles, 5 skills, and 4 workflows are in place as structurally complete
-stubs. End-to-end wiring and more community skills are on the way.
+⚙️ **Skill-driven and runnable.** The engine runs end-to-end: invoking the `pentest-intake` skill
+drives the whole pipeline, spawning real subagents for each role and tool (recon → attack → creative
+pool → correlation → learning). All 10 roles, 5 skills, and 4 workflows are wired together and
+actively exercised — not inert stubs. It's still actively evolving: expect new roles, more community
+skills, and broader runtime support to land regularly.
+
+## How to run
+
+Invoke the **`pentest-intake`** skill to start a campaign. It runs the legitimacy gate + asks the few
+config questions (scope source, budget mode, learning), then hands off to `scope-analyst` to generate
+a concrete `rules.yaml` for the engagement. From there it orchestrates the full pipeline — recon →
+attack → creative pool → correlation → learning — by spawning real subagents for each role and tool.
+
+The `.claude/workflows/*.js` scripts mirror the same orchestration for the Workflow-tool execution
+path. The generated `rules.yaml` is engagement-specific and stays local — it is never shipped.
 
 ## Contributing
 
