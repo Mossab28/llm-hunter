@@ -33,7 +33,7 @@ then you exclude it AND flag it to the operator so they can decide, you do not c
 
 ## Method
 1. Extract: in-scope assets, exclusions, forbidden classes (e.g., CSRF), stop-conditions, volume
-   caps, Signal Requirement, special rules (e.g., SSRF Sheriff), test account convention.
+   caps, Signal Requirement, special rules (e.g., a mandated out-of-band callback service), test account convention.
 2. **Big batch over ALL of `TOOLS_CATALOG.md`**: review each tool, one by one. For
    each, a single question — *does the program authorize it?* If yes → `allowed` (even if barely useful).
    If the program forbids it (banned aggressive class, volume too high, forbidden active scanner,

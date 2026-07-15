@@ -72,6 +72,18 @@ The Crazy Pool and the retry depth consume the same budget → a single button, 
   The crazy pipeline uses the SAME full workforce as the main recon/attack pipeline.
 - The working language of the repo is English (docs, conclusions).
 
+## Target-agnostic — no real target in the repo
+
+The repo ships the **generator and the method**, never a real target.
+
+- **No filled-in `rules.yaml`.** The concrete `rules.yaml` is generated per engagement by the
+  `scope-analyst` from the real scope, and kept **local (gitignored)** — never committed. The repo
+  ships only the format (`rules/SCHEMA.md`, with fictional placeholder values) and the generator.
+- **Skills stay target-agnostic.** A skill states the *method* ("for example…"), never a real
+  target, real endpoint, or engagement-specific signature/header. Anything target-specific belongs in
+  the local `rules.yaml`, not in a shared skill — a skill tied to a real vuln/target is traceable if
+  someone reuses the framework.
+
 ## What this repo is NOT
 
 Not a tool for attacking unauthorized targets. Every target must be covered by a public/private

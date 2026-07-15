@@ -19,8 +19,8 @@ waybackurls <target> | gf ssrf | qsreplace "FUZZ" | httpx -mc 200
 
 ## Out-Of-Band validation (mandatory for blind)
 - Use **Interactsh** (free) or **Burp Collaborator**: inject a callback URL, confirm
-  the SSRF via an incoming DNS/HTTP hit. (For a program with an SSRF Sheriff like TikTok, use
-  the mandated Sheriff instead — see `rules.yaml.special_rules`.)
+  the SSRF via an incoming DNS/HTTP hit. (If the program mandates its own out-of-band callback
+  service, use that instead — see `rules.yaml.special_rules`.)
 
 ## WAF bypass / recurring SSRF techniques
 - **Decimal IP**: `169.254.169.254` → `2852039166` to bypass a regex filter.
@@ -33,5 +33,5 @@ waybackurls <target> | gf ssrf | qsreplace "FUZZ" | httpx -mc 200
 
 ## Guardrails
 - Stay within `rules.yaml`: volume, allowed tools, and above all the program's specific SSRF
-  rule (mandatory Sheriff, forbidden internal targets). Never attack real metadata
-  outside an explicitly authorized test channel.
+  rule (any mandated out-of-band callback service, forbidden internal targets). Never attack real
+  metadata outside an explicitly authorized test channel.

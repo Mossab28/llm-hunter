@@ -8,7 +8,7 @@ description: Use to test object-level authorization vulnerabilities (IDOR/BOLA) 
 ## Account setup (self-owned only)
 - IDOR/BOLA → **2 accounts**: A (attacker) and B (victim), both self-owned.
 - Family-pairing / relations → **3 accounts** (A parent, B teen paired, C non-paired).
-- Test email convention per `rules.yaml` (e.g. `<username>+a@wearehackerone.com`).
+- Test email convention per `rules.yaml` (e.g. `<username>+a@<your-test-domain>`).
 - Prove impact without ever touching a third party.
 
 ## The account ↔ request link = auth material
@@ -23,7 +23,8 @@ own** tokens (A and B) via an interception proxy (Burp/mitmproxy) or DevTools.
    cosmetic `200` with no actual change ≠ vuln.
 
 ## Signature pitfalls
-Some apps sign the request **body** (e.g. X-Argus/X-Gorgon app, X-Bogus/X-Gnarly web) →
+Some apps sign the request **body** with custom signature headers (app and web often use different
+ones) →
 modifying a param in a proxy invalidates the signature. In that case test via a **real signed client**
 (browser, or app + Frida hook that re-signs), not raw curl. Web first (simpler), app
 next.

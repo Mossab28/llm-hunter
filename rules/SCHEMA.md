@@ -20,18 +20,18 @@ authorization:
   verified: false                 # if false → the engine does NOT start (blocked at intake)
 
 program:
-  name: string                 # e.g.: "TikTok Bug Bounty"
+  name: string                 # e.g.: "Acme Bug Bounty"   (fictional — fill from the real scope)
   platform: string             # e.g.: "HackerOne" | "Bugcrowd" | "private"
   url: string
   signal_requirement: bool     # if true → quality > quantity, one invalid hurts
   novelty_required: bool       # if true → a fresh variant is mandatory (patched = duplicate = $0)
 
 scope:
-  in:                          # in-scope assets
-    - "tiktok.com"
-    - "*.tiktokv.com"
+  in:                          # in-scope assets (fictional placeholders)
+    - "acme.example"
+    - "*.assets.acme.example"
   out:                         # explicit exclusions
-    - "Partner Shop / Seller API"
+    - "Legacy Billing API (access-control excluded)"
     - "CSRF (program-wide)"
   internal_forbidden: true     # DEPENDS ON THE PROGRAM, not a default.
                                #   true  → the program forbids internal: out of bounds, no
@@ -78,7 +78,7 @@ stop_conditions:               # immediate STOP + report
 
 testing_accounts:
   self_owned_only: true
-  convention: "<username>+x@wearehackerone.com"
+  convention: "<username>+x@<your-test-domain>"
 
 reporting:
   provide_test_ip: true
@@ -86,8 +86,8 @@ reporting:
   quality: "summary + repro + PoC + impact + root cause + fix"
 
 special_rules:                 # program-specific rules (structured free text)
-  - id: ssrf_sheriff
-    desc: "SSRF only via the SSRF Sheriff, 32-char hex flag"
+  - id: oob_callback
+    desc: "SSRF only via the program's mandated out-of-band callback service (flag-based)"
 
 # --- Skills bank (read by EVERY agent before executing) --------------
 skills:

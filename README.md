@@ -89,7 +89,7 @@ Models are expressed as **tiers** (`cheap` / `mid` / `strong`), not vendor names
 
 ```
 docs/                  ARCHITECTURE.md · MODEL_STRATEGY.md · pipeline_schema.html
-rules/                 SCHEMA.md (rules.yaml format) + examples/
+rules/                 SCHEMA.md — the rules.yaml format (generated per engagement, never shipped filled-in)
 TOOLS_CATALOG.md       universal tool menu + authorization metadata
 .claude/agents/        one file per role (10 roles), model tier in frontmatter
 .claude/skills/        reusable methodology (+ learned/ skill bank grown per run)

@@ -20,13 +20,13 @@ Mandatory entry point. No test starts before `rules.yaml` exists.
 5. **Signal Requirement** — if present: quality > quantity, an invalid/duplicate hurts.
 6. **Novelty** — known patched reports → new variant mandatory (otherwise duplicate = $0).
 7. **Stop-conditions** — real third-party data, internal resource, out-of-scope host → STOP + report.
-8. **Test accounts** — convention (e.g. `<username>+x@wearehackerone.com`), number required per
+8. **Test accounts** — convention (e.g. `<username>+x@<your-test-domain>`), number required per
    class (IDOR = 2, family-pairing = 3…).
-9. **Special rules** — e.g. SSRF Sheriff mandatory, body signatures that invalidate a proxy.
+9. **Special rules** — e.g. a mandated out-of-band callback service, body signatures that invalidate a proxy.
 
 ## Output
-A `rules.yaml` conforming to `rules/SCHEMA.md`. See the real example:
-`rules/examples/tiktok.rules.yaml`.
+A `rules.yaml` conforming to `rules/SCHEMA.md`, **generated per engagement** from the real scope and
+kept local (gitignored) — the repo never ships a filled-in `rules.yaml` for a real target.
 
 ## Golden rule
 In case of ambiguity, decide **restrictive** and document it. `rules.yaml` is the engine's only

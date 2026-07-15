@@ -14,7 +14,7 @@ Each tool carries **authorization metadata** so the scope-analyst can filter:
 
 > ⚠️ An `active-heavy` / `volume: high` tool (sqlmap, mass ffuf, nuclei, gobuster…) is
 > frequently **out of a program's rules**. The scope-analyst only adds it to `allowed` if the
-> program explicitly authorizes it. See `rules/examples/tiktok.rules.yaml` (all forbidden there).
+> program explicitly authorizes it (the `scope-analyst` decides per program — see `rules/SCHEMA.md`).
 
 ## Recon
 
