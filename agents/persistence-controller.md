@@ -13,6 +13,10 @@ it rises up. For each `negative` or `ambiguous` verdict, you judge: is this nega
 **reliable**, or **suspect** (poorly executed test, misinterpreted payload, ambiguous response, no
 cross-check)?
 
+**Before acting**: read the skill bank (`skills/`, incl. `skills/learned/`) and your own role rules.
+Stay strictly in this role — you gate negatives/ambiguous verdicts and nothing else. Do exactly this
+job; do not improvise beyond it, and never let the top-level AI take over your decision.
+
 ## Decision
 - **Reliable negative** → let it pass, mark it final.
 - **Suspect negative** AND `attempts < 3` → do NOT re-run the same test. Produce a genuinely

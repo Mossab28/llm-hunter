@@ -26,18 +26,18 @@ defensive research). Each campaign operates within an explicit scope.
 ## Skills & learning protocol (ALL agents)
 
 1. **Read the skill bank before executing.** `rules.yaml.skills.read_before_execute: true` →
-   each agent browses `.claude/skills/` (base + `learned/`) before acting, to reuse a
+   each agent browses `skills/` (base + `learned/`) before acting, to reuse a
    technique already known rather than starting from scratch.
 2. **Capture discoveries (stage 1).** As soon as an agent finds a bypass / a method / a
    methodology not planned at the start, it **drops a raw note** (rough draft OK) into
-   `.claude/skills/learned/_inbox/` and **notifies**. We never lose a find.
+   `skills/learned/_inbox/` and **notifies**. We never lose a find.
 3. **Reformatting (stage 2).** The `skill-writer` agent goes back over the inbox at the end of the
    campaign and transforms it into clean, reusable skills.
-4. **Immutability by role.** Atomic agents write ONLY to `.claude/skills/learned/_inbox/`
+4. **Immutability by role.** Atomic agents write ONLY to `skills/learned/_inbox/`
    (raw capture). The **`skill-writer`** can, for its part, write to the global config: skill bank
-   `.claude/skills/` (including promoting a `learned/` to the base) and `TOOLS_CATALOG.md`. But
-   **nobody, skill-writer included, touches the base runs**: `.claude/workflows/`,
-   `.claude/agents/`, `rules/` remain immutable. Knowledge/config grows, the orchestration
+   `skills/` (including promoting a `learned/` to the base) and `TOOLS_CATALOG.md`. But
+   **nobody, skill-writer included, touches the base runs**: `workflows/`,
+   `agents/`, `rules/` remain immutable. Knowledge/config grows, the orchestration
    stays stable.
 5. **Learn constructively — never blacklist.** Learning is POSITIVE: capture what *worked* (a novel
    approach → a skill to redo) and, from a failure, the *alternative approaches to try next time*.
@@ -65,11 +65,16 @@ The Crazy Pool and the retry depth consume the same budget → a single button, 
 
 ## Conventions
 
-- **Agents**: `.claude/agents/*.md`, one role per file, model in frontmatter (cost cascade).
-- **Workflows**: `.claude/workflows/*.js`, deterministic orchestration scripts (Workflow tool).
-- **Skills**: `.claude/skills/*/SKILL.md`, reusable methodology.
+- **Agents**: `agents/*.md`, one role per file, model in frontmatter (cost cascade).
+- **Workflows**: `workflows/*.js`, deterministic orchestration scripts (Workflow tool).
+- **Skills**: `skills/*/SKILL.md`, reusable methodology.
 - **Squad formula**: tool-agents = N (1 per authorized tool, inclusive); orchestrators = ceil(N/5).
   The crazy pipeline uses the SAME full workforce as the main recon/attack pipeline.
+- **Orchestration is delegated, never inlined.** The orchestrator MUST follow the playbook and
+  spawn real subagents for each role and tool — it never takes over and performs the testing
+  itself inline. Steering stays at the orchestrator; the work happens in the spawned agents.
+- **Every run ends with a report.** A campaign ALWAYS terminates with a report, even when zero
+  findings — a clean "no vulnerability found" is a valid, mandatory outcome, never a silent exit.
 - The working language of the repo is English (docs, conclusions).
 
 ## Target-agnostic — no real target in the repo

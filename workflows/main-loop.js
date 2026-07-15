@@ -13,15 +13,18 @@ export const meta = {
 // args = { rules, target, reconTools, attackTools, mode, baseFou, learning }
 // reconTools/attackTools come from scope-analyst (allowed_tools.recon / allowed_tools.attack),
 // passed through pentest-intake. mode/baseFou/learning come from the pentest-intake questionnaire.
-const rules = args?.rules ?? '(rules.yaml missing)'
-const target = args?.target ?? '(target missing)'
-const mode = args?.mode ?? 'normal'          // peu | normal | beaucoup (default)
-const baseFou = args?.baseFou ?? 3
-const learningOn = args?.learning ?? true
+// Robustness: a complex args object sometimes arrives as a JSON STRING; normalize it once so
+// every downstream read (A.X) works whether args is a proper object or a serialized string.
+const A = typeof args === 'string' ? (() => { try { return JSON.parse(args) } catch { return {} } })() : (args ?? {})
+const rules = A.rules ?? '(rules.yaml missing)'
+const target = A.target ?? '(target missing)'
+const mode = A.mode ?? 'normal'          // peu | normal | beaucoup (default)
+const baseFou = A.baseFou ?? 3
+const learningOn = A.learning ?? true
 // Tool selection is driven by the scope-analyst (allowed_tools). Fall back to a tiny safe
 // default only when nothing was passed, so the loop stays runnable but never invents scope.
-const reconTools = args?.reconTools ?? ['crt_sh']
-const attackTools = args?.attackTools ?? []
+const reconTools = A.reconTools ?? ['crt_sh']
+const attackTools = A.attackTools ?? []
 
 // 1) MAIN RECON — tools come straight from the allowed recon set.
 phase('Recon')
@@ -69,17 +72,45 @@ const decision = await agent(
 )
 
 // 7) LEARNING (tier 2) — the skill-writer reformats the inbox of raw discoveries into clean,
-//    reusable skills. Writes ONLY in .claude/skills/learned/ (run immutability).
+//    reusable skills. Writes ONLY in skills/learned/ (run immutability).
 let learned = null
 if (learningOn) {
   phase('Apprentissage')
   learned = await agent(
-    `You are the skill-writer. Go back over the inbox .claude/skills/learned/_inbox/: reformat each ` +
+    `You are the skill-writer. Go back over the inbox skills/learned/_inbox/: reformat each ` +
     `raw discovery captured during this campaign into a clean, reusable SKILL.md in ` +
-    `.claude/skills/learned/<slug>/. Deduplicate against the existing bank. NEVER write anywhere ` +
+    `skills/learned/<slug>/. Deduplicate against the existing bank. NEVER write anywhere ` +
     `other than under learned/. Then empty the processed inbox.\n--- RULES ---\n${rules}`,
     { label: 'skill-writer', phase: 'Apprentissage', agentType: 'skill-writer' }
   )
 }
 
-return { recon, attack, crazy, correlation, decision, learned }
+// 8) REPORT — ALWAYS assemble a report object summarizing the whole campaign, even when there
+//    are zero confirmed findings. The orchestrator turns this `report` into a written report via
+//    the report-writing skill ALWAYS, even on zero findings (a clean "no confirmed vuln, here is
+//    the coverage" report is itself a deliverable). Never skip reporting on an empty result set.
+const confirmedFindings = (attack?.findings ?? []).filter((f) => f && f.verdict === 'confirmed')
+const report = {
+  target,
+  mode,
+  reconCoverage: {
+    toolsRequested: reconTools,
+    toolCount: recon?.toolCount ?? 0,
+    poolCount: recon?.poolCount ?? 0,
+    bigConclusionPresent: Boolean(recon?.bigConclusion),
+  },
+  attackAttempts: {
+    toolsRequested: attackTools,
+    attempts: attack?.attempts ?? 0,
+    verdictCount: (attack?.findings ?? []).length,
+    confirmedCount: confirmedFindings.length,
+    plan: attackPlan,
+  },
+  crazyConclusion: crazy?.creativeConclusion ?? null,
+  correlation,
+  decision,
+  confirmedFindings,           // may be empty — the report is produced regardless
+  hasConfirmedFindings: confirmedFindings.length > 0,
+}
+
+return { recon, attack, crazy, correlation, decision, learned, report }

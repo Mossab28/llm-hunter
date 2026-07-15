@@ -21,10 +21,10 @@ try*, never a blacklist. The `skill-writer` turns these into an additive playboo
 
 ## Next
 At the end of the campaign, the **`skill-writer`** agent (stage 2) goes back over these captures, reformats them into
-clean, reusable skills in `.claude/skills/learned/<slug>/SKILL.md`, deduplicates, then empties
+clean, reusable skills in `skills/learned/<slug>/SKILL.md`, deduplicates, then empties
 this inbox.
 
 ## Immutability
-The captures and learned skills write ONLY under `.claude/skills/learned/`. The base runs
+The captures and learned skills write ONLY under `skills/learned/`. The base runs
 (`workflows/`, `agents/`, `rules/`, base `SKILL.md`) are **never** modified by
 learning.

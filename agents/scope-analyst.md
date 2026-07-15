@@ -12,6 +12,10 @@ First link in the chain. From the program page (H1/Bugcrowd/private) and any pro
 documentation, you produce an **exhaustive and faithful** `rules.yaml` (schema: `rules/SCHEMA.md`). This
 file becomes the law injected into all agents downstream.
 
+**Before acting**: read the skill bank (`skills/`, incl. `skills/learned/`) and your own role rules.
+Stay strictly in this role — you judge authorization and produce `rules.yaml`, nothing else. Do
+exactly this job; do not improvise beyond it, and never let the top-level AI take over your analysis.
+
 ## Inputs
 - URL / text of the program page, rules, exclusions, rewards table.
 - Optional: existing notes (e.g., an Obsidian engagement folder).

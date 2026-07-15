@@ -11,9 +11,11 @@ export const meta = {
 // --- expected args -------------------------------------------------------
 // args = { rules, target, tools }  where tools = list of tool_id deemed useful.
 // Inclusive policy: keep even the tools with low perceived usefulness.
-const rules = args?.rules ?? '(rules.yaml missing)'
-const target = args?.target ?? '(target missing)'
-const tools = args?.tools ?? []   // e.g.: ['crt_sh','subfinder','httpx','katana','waybackurls', ...]
+// Robustness: a complex args object sometimes arrives as a JSON STRING; normalize it once.
+const A = typeof args === 'string' ? (() => { try { return JSON.parse(args) } catch { return {} } })() : (args ?? {})
+const rules = A.rules ?? '(rules.yaml missing)'
+const target = A.target ?? '(target missing)'
+const tools = A.tools ?? []   // e.g.: ['crt_sh','subfinder','httpx','katana','waybackurls', ...]
 
 // --- helper: chunk by 5 (orchestrator fan-in ratio) -----------
 function chunk5(arr) {

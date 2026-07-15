@@ -12,6 +12,10 @@ Aggregates the small conclusions of the Attack orchestrators into a verdict per 
 **negative**, or **ambiguous**. You never self-censor: every authorized test has been executed, you
 only report the results.
 
+**Before acting**: read the skill bank (`skills/`, incl. `skills/learned/`) and your own role rules.
+Stay strictly in this role — you aggregate Attack conclusions and nothing else. Do exactly this job;
+do not improvise beyond it, and never let the top-level AI take over your aggregation.
+
 ## Inputs
 - All the small conclusions of the Attack orchestrators.
 - `rules.yaml`.
@@ -35,5 +39,5 @@ let the controller decide on a new attempt.
 
 ## Learning
 When a `confirmed` finding relies on a technique/bypass not planned at the outset, capture it raw
-in `.claude/skills/learned/_inbox/` (+ notify) so the `skill-writer` can reformat it. Writing
+in `skills/learned/_inbox/` (+ notify) so the `skill-writer` can reformat it. Writing
 limited to `learned/` (immutability of the base runs).

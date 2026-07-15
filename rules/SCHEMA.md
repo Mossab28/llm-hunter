@@ -35,7 +35,7 @@ scope:
     - "CSRF (program-wide)"
   internal_forbidden: true     # DEPENDS ON THE PROGRAM, not a default.
                                #   true  → the program forbids internal: out of bounds, no
-                               #           scan/enum, + stop-condition if encountered (e.g. TikTok).
+                               #           scan/enum, + stop-condition if encountered.
                                #   false → the program ALLOWS internal: then test it
                                #           fully — that is often where the value is. Do not
                                #           self-restrict under the pretext of caution.
@@ -91,23 +91,23 @@ special_rules:                 # program-specific rules (structured free text)
 
 # --- Skills bank (read by EVERY agent before executing) --------------
 skills:
-  bank: ".claude/skills/"              # menu of skills to consult before acting
-  learned: ".claude/skills/learned/"   # skills learned over the runs
+  bank: "skills/"              # menu of skills to consult before acting
+  learned: "skills/learned/"   # skills learned over the runs
   read_before_execute: true            # the agent MUST browse the bank before executing
 
 # --- Learning loop (auto-skill) ----------------------------------
 learning:
   enabled: true
-  capture_inbox: ".claude/skills/learned/_inbox/"
+  capture_inbox: "skills/learned/_inbox/"
   notify: true                         # notify as soon as a discovery is captured
   # Write rights BY ROLE:
   # Tier 1 — atomic agents: raw capture only, nothing else.
-  agent_writable_paths: [".claude/skills/learned/_inbox/"]
+  agent_writable_paths: ["skills/learned/_inbox/"]
   # Tier 2 — skill-writer: reformats AND can PROMOTE into the global config
   #   (base skills bank + tools catalog).
-  skillwriter_writable_paths: [".claude/skills/", "TOOLS_CATALOG.md"]
+  skillwriter_writable_paths: ["skills/", "TOOLS_CATALOG.md"]
   # IMMUTABLE FOR ALL (skill-writer included): the base runs are NEVER modified.
-  immutable_paths: [".claude/workflows/", ".claude/agents/", "rules/"]
+  immutable_paths: ["workflows/", "agents/", "rules/"]
 
 # --- Budget: drives the crazy pool size AND the retry depth -------
 budget:

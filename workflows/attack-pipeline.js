@@ -10,13 +10,15 @@ export const meta = {
 }
 
 // args = { rules, target, tools, mode }  — leads decided by the super-agent-principal
-const rules = args?.rules ?? '(rules.yaml missing)'
-const target = args?.target ?? '(target missing)'
-const tools = args?.tools ?? []
+// Robustness: a complex args object sometimes arrives as a JSON STRING; normalize it once.
+const A = typeof args === 'string' ? (() => { try { return JSON.parse(args) } catch { return {} } })() : (args ?? {})
+const rules = A.rules ?? '(rules.yaml missing)'
+const target = A.target ?? '(target missing)'
+const tools = A.tools ?? []
 
 // The budget mode drives the retry depth of the persistence-controller (peu=2, normal/beaucoup=3).
 function maxRetryFor(mode) { return mode === 'peu' ? 2 : 3 }
-const mode = args?.mode ?? 'normal'
+const mode = A.mode ?? 'normal'
 const MAX_RETRY = maxRetryFor(mode)
 
 function chunk5(arr) { const o = []; for (let i = 0; i < arr.length; i += 5) o.push(arr.slice(i, i + 5)); return o }

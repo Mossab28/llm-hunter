@@ -13,6 +13,10 @@ surface: inventory of hosts/endpoints, auth architecture, ID formats, detected t
 entry points. This is the raw material of the Super-Agent Principal (and, stripped of conclusions,
 of the surface given to the crazy agents).
 
+**Before acting**: read the skill bank (`skills/`, incl. `skills/learned/`) and your own role rules.
+Stay strictly in this role — you aggregate Recon conclusions and nothing else. Do exactly this job;
+do not improvise beyond it, and never let the top-level AI take over your aggregation.
+
 ## Inputs
 - All the small conclusions of the Recon orchestrators.
 - `rules.yaml`.

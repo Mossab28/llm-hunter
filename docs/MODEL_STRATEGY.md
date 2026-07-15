@@ -41,8 +41,8 @@ The `model:` field in agent frontmatter (`haiku`/`sonnet`/`opus`) is a **tier to
 
 ## Where it is wired
 
-- **Agents** (`.claude/agents/*.md`): `model:` = tier token, honored for real by Claude Code.
-- **Workflows** (`.claude/workflows/*.js`): `agent(..., { agentType })` inherits the role's real model.
+- **Agents** (`agents/*.md`): `model:` = tier token, honored for real by Claude Code.
+- **Workflows** (`workflows/*.js`): `agent(..., { agentType })` inherits the role's real model.
   In single-model mode, pass `{ effort }` per tier instead of `{ model }`.
 - **`rules.yaml.runtime`**: declares `provider` and `multi_model` → determines multi-model vs
   effort fallback.

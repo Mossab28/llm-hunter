@@ -88,36 +88,53 @@ Models are expressed as **tiers** (`cheap` / `mid` / `strong`), not vendor names
 ## Repository layout
 
 ```
-docs/                  ARCHITECTURE.md · MODEL_STRATEGY.md · pipeline_schema.html
+.claude-plugin/plugin.json   plugin manifest (Claude Code plugin)
+commands/              slash commands (/pentest · /pentest-rerun)
+agents/                one file per role (10 roles), model tier in frontmatter
+skills/                reusable methodology (+ learned/ skill bank grown per run)
+workflows/             orchestration scripts (recon · attack · crazy · main-loop)
 rules/                 SCHEMA.md — the rules.yaml format (generated per engagement, never shipped filled-in)
+docs/                  ARCHITECTURE.md · MODEL_STRATEGY.md · pipeline_schema.html
 TOOLS_CATALOG.md       universal tool menu + authorization metadata
-.claude/agents/        one file per role (10 roles), model tier in frontmatter
-.claude/skills/        reusable methodology (+ learned/ skill bank grown per run)
-.claude/workflows/     orchestration scripts (recon · attack · crazy · main-loop)
 CLAUDE.md              the operating contract (guardrails & conventions)
 ```
 
+## Install (Claude Code plugin)
+
+LLM Hunter ships as a **Claude Code plugin**. Install it, then drive it from two slash commands:
+
+- **`/pentest`** — runs the full pipeline end-to-end (legitimacy gate → intake → scope-analyst →
+  recon → attack → creative pool → correlation → learning → report).
+- **`/pentest-rerun`** — reruns the pipeline on newly surfaced findings, reusing the existing
+  `rules.yaml` and the grown skill bank.
+
 ## Status
 
-⚙️ **Skill-driven and runnable.** The engine runs end-to-end: invoking the `pentest-intake` skill
-drives the whole pipeline, spawning real subagents for each role and tool (recon → attack → creative
-pool → correlation → learning). All 10 roles, 5 skills, and 4 workflows are wired together and
-actively exercised — not inert stubs. It's still actively evolving: expect new roles, more community
-skills, and broader runtime support to land regularly.
+⚙️ **Skill-driven and runnable.** The engine runs end-to-end: the `/pentest` command (or the
+`pentest-intake` skill) drives the whole pipeline, spawning real subagents for each role and tool
+(recon → attack → creative pool → correlation → learning). The orchestrator always delegates to real
+subagents — it never takes over and runs the tests inline. Every run **always ends with a report**,
+even when zero findings, and then asks whether to rerun on the new findings. All 10 roles, 5 skills,
+and 4 workflows are wired together and actively exercised — not inert stubs. It's still actively
+evolving: expect new roles, more community skills, and broader runtime support to land regularly.
 
 ## How to run
 
-Invoke the **`pentest-intake`** skill to start a campaign. It runs the legitimacy gate + asks the few
-config questions (scope source, budget mode, learning), then hands off to `scope-analyst` to generate
-a concrete `rules.yaml` for the engagement. From there it orchestrates the full pipeline — recon →
-attack → creative pool → correlation → learning — by spawning real subagents for each role and tool.
+Run the **`/pentest`** command (or invoke the **`pentest-intake`** skill) to start a campaign. It runs
+the legitimacy gate + asks the few config questions (scope source, budget mode, learning), then hands
+off to `scope-analyst` to generate a concrete `rules.yaml` for the engagement. From there it
+orchestrates the full pipeline — recon → attack → creative pool → correlation → learning — by spawning
+real subagents for each role and tool; the orchestrator delegates and never runs the tests itself.
 
-The `.claude/workflows/*.js` scripts mirror the same orchestration for the Workflow-tool execution
-path. The generated `rules.yaml` is engagement-specific and stays local — it is never shipped.
+The pipeline **always ends with a report**, even if zero findings, and after each run it asks whether
+to rerun on the new findings (**`/pentest-rerun`**).
+
+The `workflows/*.js` scripts mirror the same orchestration for the Workflow-tool execution path. The
+generated `rules.yaml` is engagement-specific and stays local — it is never shipped.
 
 ## Contributing
 
-Found a technique the engine should know? Package it as a skill under `.claude/skills/learned/` and
+Found a technique the engine should know? Package it as a skill under `skills/learned/` and
 open a PR. Community skills make every hunter's engine sharper.
 
 ## ⚠️ Authorized use only

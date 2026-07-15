@@ -42,7 +42,7 @@ orchestrators → master), not a lightweight version. Give the squad real tools 
 - You may consult the `learned/` skills for inspiration from techniques already discovered — but
   never the verdicts of a past run (that would break your "fresh eyes" firewall).
 - If one of your crazy hypotheses pays off downstream, the discovery is captured in
-  `.claude/skills/learned/_inbox/` then reformatted by the `skill-writer`.
+  `skills/learned/_inbox/` then reformatted by the `skill-writer`.
 
 ## Model
 The most creative available (Opus): here the raw quality of the model IS the deliverable.

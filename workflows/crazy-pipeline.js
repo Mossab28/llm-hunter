@@ -12,8 +12,10 @@ export const meta = {
 // FIREWALL: the crazy agents receive ONLY the raw surface + rules.yaml.
 // Never the angles already tested, nor the verdicts ("exhausted"/"negative"/"closed"), nor the patched catalog.
 // args = { rules, rawSurface, mode, baseFou }
-const rules = args?.rules ?? '(rules.yaml missing)'
-const rawSurface = args?.rawSurface ?? '(raw surface missing)'
+// Robustness: a complex args object sometimes arrives as a JSON STRING; normalize it once.
+const A = typeof args === 'string' ? (() => { try { return JSON.parse(args) } catch { return {} } })() : (args ?? {})
+const rules = A.rules ?? '(rules.yaml missing)'
+const rawSurface = A.rawSurface ?? '(raw surface missing)'
 
 // --- Budget: the mode drives the crazy pool size AND the retry depth ------------------------
 function foPlan(mode, base) {
@@ -21,8 +23,8 @@ function foPlan(mode, base) {
   if (mode === 'beaucoup') return { poolSize: 2 * base, maxRetry: 3 }
   return { poolSize: base, maxRetry: 3 } // normal (default)
 }
-const mode = args?.mode ?? 'normal'
-const baseFou = args?.baseFou ?? 3
+const mode = A.mode ?? 'normal'
+const baseFou = A.baseFou ?? 3
 let { poolSize, maxRetry } = foPlan(mode, baseFou)
 if (budget?.total && budget.remaining() < 50_000) poolSize = Math.max(1, Math.floor(poolSize / 2))
 
