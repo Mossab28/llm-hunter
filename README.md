@@ -51,60 +51,11 @@ authorized to test.**
 
 ## How it works
 
-```mermaid
-flowchart TB
-  I["🧭 pentest-intake<br/>legitimacy gate + config"] --> SA["scope-analyst"]
-  SA --> R["📜 rules.yaml<br/>the only guardrail — injected into every agent"]
+<p align="center">
+  <img src="assets/architecture.svg" alt="LLM Hunter architecture" width="100%">
+</p>
 
-  subgraph MAIN["Main loop"]
-    direction TB
-    SAP["🧠 Super-Agent · Principal<br/>drives Recon ⇄ Attack"]
-    subgraph RECON["Recon workflow"]
-      direction TB
-      RT["N tool-agents<br/>(1 per authorized tool)"] --> RO["⌈N/5⌉ orchestrators"] --> MR["master-recon"]
-    end
-    subgraph ATTACK["Attack workflow"]
-      direction TB
-      AT["N tool-agents"] --> AO["⌈N/5⌉ orchestrators"] --> MA["master-attack"] --> PC["🛡️ persistence-controller<br/>up to 3 retries"]
-    end
-    SAP --> RECON
-    MR --> SAP
-    SAP --> ATTACK
-    PC --> SAP
-  end
-
-  subgraph CRE["Creative pool — firewalled (raw surface only)"]
-    direction TB
-    CF["🎲 crazy agents<br/>no memory of prior work"] --> CR["crazy recon → crazy attack"] --> CM["crazy master → 🛡️ persistence"]
-  end
-
-  subgraph LEARN["Self-learning loop"]
-    direction LR
-    INB["any agent → inbox<br/>(raw capture)"] --> SW["skill-writer"] --> LS["skills/learned/"]
-  end
-
-  R --> SAP
-  R -. raw surface only .-> CF
-  CM --> SAG["🧠 Super-Agent · Global<br/>correlates creative ⇄ main"]
-  SAG --> SAP
-  MAIN -. discoveries .-> INB
-  LS -. read before executing .-> MAIN
-
-  classDef blue fill:#0d2233,stroke:#5b8def,color:#e7eef6;
-  classDef green fill:#10240f,stroke:#41c471,color:#e7eef6;
-  classDef orange fill:#2a2210,stroke:#e0a13a,color:#e7eef6;
-  classDef red fill:#2a1618,stroke:#f2604f,color:#e7eef6;
-  classDef violet fill:#1c1430,stroke:#a884f0,color:#e7eef6;
-  classDef teal fill:#122b2d,stroke:#38c6cf,color:#e7eef6;
-  class I,SA,R blue;
-  class RT,RO,MR,AT,AO,MA green;
-  class PC teal;
-  class CF,CR,CM orange;
-  class SAP,SAG red;
-  class INB,SW,LS violet;
-```
-
-> A styled, interactive version of this diagram lives in [`docs/pipeline_schema.html`](docs/pipeline_schema.html) (open it in a browser).
+> A styled, interactive version lives in [`docs/pipeline_schema.html`](docs/pipeline_schema.html) (open it in a browser).
 
 **The squad formula.** Tool-agents = **N** (one per *authorized* tool, inclusive — even low-utility
 tools are deployed). Orchestrators = **ceil(N/5)** (one per pool of 5). Masters aggregate into a
