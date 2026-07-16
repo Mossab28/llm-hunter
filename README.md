@@ -92,7 +92,7 @@ Models are expressed as **tiers** (`cheap` / `mid` / `strong`), not vendor names
 
 ```
 .claude-plugin/plugin.json   plugin manifest (Claude Code plugin)
-commands/              slash commands (/pentest · /pentest-rerun)
+commands/              the /llmhunter slash command (single entry point)
 agents/                one file per role (10 roles), model tier in frontmatter
 skills/                reusable methodology (+ learned/ skill bank grown per run)
 workflows/             orchestration scripts (recon · attack · crazy · main-loop)
@@ -104,36 +104,32 @@ CLAUDE.md              the operating contract (guardrails & conventions)
 
 ## Install (Claude Code plugin)
 
-LLM Hunter ships as a **Claude Code plugin**. Install it, then drive it from two slash commands:
+LLM Hunter ships as a **Claude Code plugin**, driven by a single branded slash command:
 
-- **`/pentest`** — runs the full pipeline end-to-end (legitimacy gate → intake → scope-analyst →
-  recon → attack → creative pool → correlation → learning → report).
-- **`/pentest-rerun`** — reruns the pipeline on newly surfaced findings, reusing the existing
-  `rules.yaml` and the grown skill bank.
+- **`/llmhunter`** — runs the whole pipeline as one deterministic cycle, then asks whether to
+  continue: legitimacy gate → intake → `scope-analyst` → **deterministic `main-loop` workflow**
+  (recon → attack → unbounded think-differently retry → creative pool → correlation) → report →
+  *continue?* gate → loop or finish (learning).
 
 ## Status
 
-⚙️ **Skill-driven and runnable.** The engine runs end-to-end: the `/pentest` command (or the
-`pentest-intake` skill) drives the whole pipeline, spawning real subagents for each role and tool
-(recon → attack → creative pool → correlation → learning). The orchestrator always delegates to real
-subagents — it never takes over and runs the tests inline. Every run **always ends with a report**,
-even when zero findings, and then asks whether to rerun on the new findings. All 10 roles, 5 skills,
-and 4 workflows are wired together and actively exercised — not inert stubs. It's still actively
-evolving: expect new roles, more community skills, and broader runtime support to land regularly.
+⚙️ **Deterministic and runnable on your subscription.** `/llmhunter` drives the pipeline through the
+**Workflow tool** — the deep orchestration runs as a deterministic script (it can't drift), spawning
+real subagents on your Claude Code subscription (no API key). The orchestrator only triggers the
+engine and relays its output — it never takes over and runs the tests inline, and it applies the
+skills/rules to the letter. Every run **always ends with a report**, even at zero findings, then asks
+whether to continue on the new findings. All 10 roles, 5 skills, and 4 workflows are wired together —
+not inert stubs. Still actively evolving: expect new roles, more community skills, and broader runtime
+support regularly.
 
 ## How to run
 
-Run the **`/pentest`** command (or invoke the **`pentest-intake`** skill) to start a campaign. It runs
-the legitimacy gate + asks the few config questions (scope source, budget mode, learning), then hands
-off to `scope-analyst` to generate a concrete `rules.yaml` for the engagement. From there it
-orchestrates the full pipeline — recon → attack → creative pool → correlation → learning — by spawning
-real subagents for each role and tool; the orchestrator delegates and never runs the tests itself.
-
-The pipeline **always ends with a report**, even if zero findings, and after each run it asks whether
-to rerun on the new findings (**`/pentest-rerun`**).
-
-The `workflows/*.js` scripts mirror the same orchestration for the Workflow-tool execution path. The
-generated `rules.yaml` is engagement-specific and stays local — it is never shipped.
+Run **`/llmhunter`** to start a campaign. It runs the legitimacy gate + asks the few config questions
+(scope source, budget mode, learning), hands off to `scope-analyst` to generate a concrete
+`rules.yaml`, then triggers the deterministic `main-loop` workflow for one full cycle. The pipeline
+**always ends with a report**, even if zero findings, and then asks **"continue on the new
+findings?"** — yes loops another cycle (reusing the recon surface), no runs the `skill-writer` and
+stops. The generated `rules.yaml` is engagement-specific and stays local — it is never shipped.
 
 ## Contributing
 
