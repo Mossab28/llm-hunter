@@ -104,12 +104,33 @@ CLAUDE.md              the operating contract (guardrails & conventions)
 
 ## Install (Claude Code plugin)
 
-LLM Hunter ships as a **Claude Code plugin**, driven by a single branded slash command:
+LLM Hunter ships as a **Claude Code plugin**, driven by a single branded slash command.
 
-- **`/llmhunter`** — runs the whole pipeline as one deterministic cycle, then asks whether to
-  continue: legitimacy gate → intake → `scope-analyst` → **deterministic `main-loop` workflow**
-  (recon → attack → unbounded think-differently retry → creative pool → correlation) → report →
-  *continue?* gate → loop or finish (learning).
+**1. Add the plugin.** In Claude Code:
+
+```
+/plugin marketplace add Mossab28/llm-hunter
+/plugin install llm-hunter@llm-hunter
+```
+
+(Or clone the repo and add it locally: `/plugin marketplace add ./llm-hunter`.)
+
+**2. Turn on `ultracode` (recommended for best results).** LLM Hunter is a *deep* multi-agent engine.
+In Claude Code, enabling **ultracode** makes Claude fully lean into the workflow orchestration — more
+agents, deeper coverage, more think-differently retries — which is exactly what gives the best hunting
+results. It is token-intensive by design; that's the point of deep hunting. Without ultracode it still
+works, just less exhaustively.
+
+**3. Run it.**
+
+```
+/llmhunter <program URL or scope>
+```
+
+`/llmhunter` runs the whole pipeline as one deterministic cycle, then asks whether to continue:
+legitimacy gate → intake → `scope-analyst` → **deterministic `main-loop` workflow** (recon → attack →
+unbounded think-differently retry → creative pool → correlation) → report → *continue?* gate → loop or
+finish (learning). It runs on your **Claude Code subscription** — no API key.
 
 ## Status
 

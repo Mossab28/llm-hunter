@@ -1,0 +1,11 @@
+{
+  "name": "llm-hunter",
+  "owner": { "name": "Mossab", "url": "https://github.com/Mossab28" },
+  "plugins": [
+    {
+      "name": "llm-hunter",
+      "source": "./",
+      "description": "Deep, deterministic multi-agent pentest / bug bounty engine, driven by the /llmhunter command. Runs on your Claude Code subscription."
+    }
+  ]
+}
