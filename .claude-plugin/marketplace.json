@@ -1,6 +1,6 @@
 {
   "name": "llm-hunter",
-  "owner": { "name": "Mossab", "url": "https://github.com/Mossab28" },
+  "owner": { "name": "Mossab" },
   "plugins": [
     {
       "name": "llm-hunter",
